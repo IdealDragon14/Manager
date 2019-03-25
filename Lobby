@@ -1,0 +1,154 @@
+options:
+    lobbytpmsg: "&6Teleporting to the Lobby in two seconds..."
+    hubtpmsg: "&6Teleporting to the Hub in two seconds..."
+    canceltpmsg: "&cYou have stopped teleporting!"
+    teleportperm: "hub.others"
+    setlperm: "lobby.admin"
+    sethperm: "hub.admin"
+    clockname: "&6Gamemode Selector"
+    welcomemsg: "&9&lSkyTech &6ยป &fJoining Hub!"
+    factionworld: idk
+#--------------------------------------------------------------------------------------
+on damage:
+    {teleporting.%victim%} = true
+    set {teleporting.%victim%} to false
+    send {@canceltpmsg} to victim
+
+
+on any movement:
+    {teleporting.%player%} = true
+    if {teleportingcoordy.%player%} is set:
+        if rounded down player's y coordinate != {teleportingcoordy.%player%}:
+            send "&cStopped teleporting!"
+            set {teleporting.%player%} to false
+            stop
+    if {teleportingcoordx.%player%} is set:
+        if rounded down player's x coordinate != {teleportingcoordx.%player%}:
+            send "&cStopped teleporting!"
+            set {teleporting.%player%} to false
+            stop
+    if {teleportingcoordz.%player%} is set:
+        if rounded down player's z coordinate != {teleportingcoordz.%player%}:
+            send "&cStopped teleporting!"
+            set {teleporting.%player%} to false
+            stop
+
+#-------------------------------------------------------------------------------------
+on join:
+    set {teleporting.%player%} to false
+
+
+#-------------------------------------------------------------------------------------
+command /hub [<player>]:
+    trigger:
+        if arg-1 is set:
+            if player has permission {@teleportperm}:
+                teleport arg to {location.hub}
+                send "&6Teleporting %arg-1% to the Hub."
+            else:
+                delete {teleportingcoordy.%player%}
+                delete {teleportingcoordx.%player%}
+                delete {teleportingcoordz.%player%}
+                {teleporting.%player%} = false
+                set {teleportingcoordx.%player%} to rounded down player's x coordinate
+                set {teleportingcoordz.%player%} to rounded down player's z coordinate
+                send {@hubtpmsg}
+                set {teleporting.%player%} to true
+                loop 40 times:
+                    wait 1 tick
+                    if {teleporting.%player%} = false:
+                        stop
+                teleport player to {location.hub}
+                send "&6Teleported to the hub."
+                set {teleporting.%player%} to false
+                delete {teleportingcoordy.%player%}
+                delete {teleportingcoordx.%player%}
+                delete {teleportingcoordz.%player%}
+        else:
+            delete {teleportingcoordy.%player%}
+            delete {teleportingcoordx.%player%}
+            delete {teleportingcoordz.%player%}
+            {teleporting.%player%} = false
+            set {teleportingcoordx.%player%} to rounded down player's x coordinate
+            set {teleportingcoordz.%player%} to rounded down player's z coordinate
+            send {@hubtpmsg}
+            set {teleporting.%player%} to true
+            loop 40 times:
+                wait 1 tick
+                if {teleporting.%player%} = false:
+                    stop
+            teleport player to {location.hub}
+            send "&6Teleported to the lobby."
+            set {teleporting.%player%} to false
+            delete {teleportingcoordy.%player%}
+            delete {teleportingcoordx.%player%}
+            delete {teleportingcoordz.%player%}
+
+command /lobby [<player>]:
+    trigger:
+        if arg-1 is set:
+            if player has permission {@teleportperm}:
+                teleport arg to {location.lobby}
+                send "&6Teleporting %arg-1% to the lobby."
+            else:
+                delete {teleportingcoordy.%player%}
+                delete {teleportingcoordx.%player%}
+                delete {teleportingcoordz.%player%}
+                {teleporting.%player%} = false
+                set {teleportingcoordx.%player%} to rounded down player's x coordinate
+                set {teleportingcoordz.%player%} to rounded down player's z coordinate
+                send {@lobbytpmsg}
+                set {teleporting.%player%} to true
+                loop 40 times:
+                    wait 1 tick
+                    if {teleporting.%player%} = false:
+                        stop
+                teleport player to {location.lobby}
+                send "&6Teleported to the lobby."
+                set {teleporting.%player%} to false
+                delete {teleportingcoordy.%player%}
+                delete {teleportingcoordx.%player%}
+                delete {teleportingcoordz.%player%}
+        else:
+            delete {teleportingcoordy.%player%}
+            delete {teleportingcoordx.%player%}
+            delete {teleportingcoordz.%player%}
+            {teleporting.%player%} = false
+            set {teleportingcoordx.%player%} to rounded down player's x coordinate
+            set {teleportingcoordz.%player%} to rounded down player's z coordinate
+            send {@lobbytpmsg}
+            set {teleporting.%player%} to true
+            loop 40 times:
+                wait 1 tick
+                if {teleporting.%player%} = false:
+                    stop
+            send "&6Teleported to the lobby."
+            teleport player to {location.lobby}
+            set {teleporting.%player%} to false
+            delete {teleportingcoordy.%player%}
+            delete {teleportingcoordx.%player%}
+            delete {teleportingcoordz.%player%}
+#------------------------------------------------------------------------------------------------
+command /sethub:
+    permission: {@sethperm}
+    usage: /sethub
+    trigger:
+        set {location.hub} to player's location
+        send "&6You successfully set the hub to &e""&a%player's location%&e"" in ""&a%player's world%&e"""
+
+command /setlobby:
+    permission: {@setlperm}
+    usage: /setlobby
+    trigger:
+        set {location.lobby} to player's location
+        send "&6You successfully set the lobby to &e""&a%player's location%&e"" in ""&a%player's world%&e"""
+#-------------------------------------------------------------------------------------------------
+on join:
+    loop 5 times:
+        wait 1 tick
+        teleport player to {location.hub}
+    send {@welcomemsg}
+
+on click with clock:
+    tool's name = {@clockname}
+	execute player command "servers"
